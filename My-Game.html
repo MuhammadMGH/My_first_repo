@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <style>
+    body {
+    user-select: none;
+    background-color: #000;
+    font-family: Tahoma;
+    color: #fff;
+}
+
+.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.game-container {
+    transition: all 150ms;
+}
+
+.start-game {
+    position: absolute;
+    width: 6em;
+    height: 1.3em;
+    font-size: 2em;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: all 150ms;
+}
+
+.box {
+    width: 2em;
+    height: 2em;
+    background-color: #a11;
+    position: absolute;
+    left: 10%;
+    top: 10%;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: opacity 150ms, transform 150ms;
+}
+
+.box.hide {
+    transform: scale(0.1);
+}
+
+#pause {
+    float: right;
+    cursor: pointer;
+    background-color: rgb(0, 0, 0);
+    border: rgb(0, 0, 0);
+    border-radius: 5px;
+    width: auto;
+    height: 20px;
+    transition: 0.5s;
+    color: #fff;
+}
+
+#pause.hide,
+#continue.hide {
+    display: none;
+}
+
+#pause:hover {
+    background-color: #111;
+    color: #fff;
+}
+
+#continue {
+    float: right;
+    cursor: pointer;
+    background-color: rgb(0, 0, 0);
+    border: rgb(0, 0, 0);
+    border-radius: 5px;
+    width: auto;
+    height: 20px;
+    transition: 0.5s;
+    color: #fff;
+}
+
+#continue:hover {
+    background-color: #111;
+    color: #fff;
+}
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My-Game</title>
+</head>
+<body>
+    <div class="game-container hide">
+        <button id="pause">Pause</button>
+        <button id="continue" class="hide">Continue</button>
+        <div class="score-container">
+            Score: <span class="score-value"></span>
+        </div>
+        <div class="box hide"></div>
+        <div class="box hide"></div>
+        <div class="box hide"></div>
+        <div class="box hide"></div>
+        <div class="box hide"></div>
+    </div>
+    <div class="start-game">Start Hard Game!</div>
+    <script src="script.js">
+    (() => {
+    'use strict';
+
+    const starGameBtn = document.querySelector('.start-game');
+    const pauseGameBtn = document.querySelector('#pause');
+    const continueGameBtn = document.querySelector('#continue');
+    const gameContainer = document.querySelector('.game-container');
+    const scoreValueElement = document.querySelector('.score-value');
+    const boxArr = document.querySelectorAll('.box');
+    const collorArr = ['#F44336', '#9C27B0', '#673AB7', '#3F51B5', '#00BCD4', '#FF5722', '#795548',];
+
+    const startGame = () => {
+        console.log('startGame');
+        starGameBtn.classList.add('hide');
+        gameContainer.classList.remove('hide');
+
+        updateScore(0);
+
+        for (const box of boxArr) {
+            box.addEventListener('click', boxClick);
+        }
+
+        moveNextBox(1);
+    };
+
+    const boxClick = function () {
+        console.log('boxClick');
+        updateScore(1);
+        moveBox(this);
+    };
+
+    const rand = max => Math.floor( Math.random() * max );
+    
+
+    let moveBoxTimer;
+    const moveBox = (box) => {
+        //console.log('moveBox');
+        box.classList.add('hide');
+        moveBoxTimer = setTimeout(() => {
+            box.style.left = rand(90) + '%';
+            box.style.top = rand(90) + '%';
+            box.style.backgroundColor = collorArr[rand(collorArr.length)];
+            box.classList.remove('hide');
+        }, 200);
+    };
+    let boxIndex = -1;
+    let moveNextBoxTimer;
+    const moveNextBox = () => {
+        //console.log('moveNextBox');
+        boxIndex++;
+        if (boxIndex > boxArr.length-1) {
+            boxIndex = 0;
+        }
+        moveBox(boxArr[boxIndex]);
+
+        moveNextBoxTimer = setTimeout(moveNextBox, rand(300) + 200);
+    };
+
+    let score = 0;
+    const updateScore = (addScore) => {
+        console.log('updateScore');
+        score += addScore;
+        scoreValueElement.innerHTML = score;
+    };
+
+
+
+    const pauseGame = () => {
+        console.log('pauseGame');
+
+        clearTimeout(moveNextBoxTimer);
+        clearTimeout(moveBoxTimer);
+
+        for (const box of boxArr) {
+            box.classList.add('hide');
+        }
+
+        pauseGameBtn.classList.add('hide');
+        continueGameBtn.classList.remove('hide');
+    };
+
+    const continueGame = () => {
+        console.log('continueGame');
+        moveNextBox();
+        pauseGameBtn.classList.remove('hide');
+        continueGameBtn.classList.add('hide');
+    };
+
+    starGameBtn.addEventListener('click', startGame)
+    pauseGameBtn.addEventListener('click', pauseGame)
+    continueGameBtn.addEventListener('click', continueGame)
+})();
+    </script>
+</body>
+</html>
